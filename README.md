@@ -18,14 +18,7 @@ A **Streamlit-based mobile-friendly web app** to extract temperature from an ima
 ---
 ## 🔹 Open in Browser / Mobile:
 - Usually runs at `http://localhost:8501` 
-
-## 🔹 Demo Screenshot
-
-![App Screenshot](screenshot.png)  
-*(Add a screenshot of your app here for GitHub preview)*
-
 ---
-
 ## 🔹 Requirements
 
 - Python 3.9+  
