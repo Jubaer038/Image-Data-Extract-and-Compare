@@ -23,7 +23,7 @@ else:
         st.stop()
 
 # -------------------------------
-# Streamlit Page Settings
+# Page Settings
 # -------------------------------
 st.set_page_config(page_title="Image Data Extract & Compare", layout="wide")
 st.title("📷 Image Data Extract & Compare")
@@ -42,14 +42,13 @@ if "current_source" not in st.session_state:
     st.session_state.current_source = None  # "upload" or "camera"
 
 # -------------------------------
-# Step 1: Tabs for Upload vs Camera
+# Tabs: Upload / Camera
 # -------------------------------
 tab1, tab2 = st.tabs(["📤 Upload Image", "📸 Take Photo"])
 
 with tab1:
     uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
     if uploaded_file is not None:
-        # Reset previous results if new upload
         if st.session_state.current_source != "upload" or st.session_state.image_file != uploaded_file:
             st.session_state.image_file = uploaded_file
             st.session_state.extracted_temp = None
@@ -59,7 +58,6 @@ with tab1:
 with tab2:
     camera_file = st.camera_input("Click below to open your camera and take a photo")
     if camera_file is not None:
-        # Reset previous results if new camera photo
         if st.session_state.current_source != "camera" or st.session_state.image_file != camera_file:
             st.session_state.image_file = camera_file
             st.session_state.extracted_temp = None
@@ -67,15 +65,13 @@ with tab2:
             st.session_state.current_source = "camera"
 
 # -------------------------------
-# Step 2: OCR Extraction
+# OCR Extraction
 # -------------------------------
 if st.session_state.image_file is not None:
     image = Image.open(st.session_state.image_file).convert("RGB")
     img_array = np.array(image)
-
     st.image(image, caption="Selected Image", use_column_width=True)
 
-    # OCR extraction
     gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
     extracted_text = pytesseract.image_to_string(gray)
     st.session_state.extracted_text = extracted_text
@@ -83,17 +79,14 @@ if st.session_state.image_file is not None:
     st.subheader("📝 Extracted Text")
     st.text(st.session_state.extracted_text)
 
-    # Regex for temperature (integers only)
     temp_matches = re.findall(r'(\d+)\s*(?:°|°C|degree|degrees)', st.session_state.extracted_text, flags=re.IGNORECASE)
     if temp_matches:
         st.session_state.extracted_temp = int(temp_matches[0])
-        st.success(f"Extracted Temperature: {st.session_state.extracted_temp}°C")
     else:
         st.session_state.extracted_temp = None
-        st.warning("⚠️ No valid temperature value detected.")
 
 # -------------------------------
-# Step 3: API Compare
+# API Compare + Card View
 # -------------------------------
 city = st.text_input("Enter city name for weather check", "Dhaka")
 
@@ -110,8 +103,16 @@ if st.button("Compare with API"):
 
             if data.get("main"):
                 api_temp = round(data["main"]["temp"])
-                st.info(f"🌤 Current API Temperature in {city}: {api_temp}°C")
 
+                # Card-like view
+                st.markdown("### 🌤 Temperature Comparison")
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric(label="Extracted Temp", value=f"{st.session_state.extracted_temp}°C")
+                with col2:
+                    st.metric(label=f"{city} API Temp", value=f"{api_temp}°C")
+
+                # Match / Not Match
                 if st.session_state.extracted_temp == api_temp:
                     st.success("✅ Match! Extracted temperature matches API data.")
                 else:
