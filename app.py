@@ -30,26 +30,29 @@ st.title("📷 Image Data Extract & Compare")
 st.write("Upload an image OR take a photo, extract temperature text, and compare with OpenWeather API.")
 
 # -------------------------------
-# Step 1: Choose Image (Upload or Camera)
+# Step 1: Tabs for Upload vs Camera
 # -------------------------------
-st.subheader("📤 Select Image Source")
+tab1, tab2 = st.tabs(["📤 Upload Image", "📸 Take Photo"])
 
-uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+uploaded_file = None
+camera_file = None
 
-# Camera capture with session state control
-if "camera_image" not in st.session_state:
-    st.session_state.camera_image = None
+with tab1:
+    uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
 
-camera_file = st.camera_input("📸 Take Photo (click to open camera)")
-
-if camera_file is not None:
-    st.session_state.camera_image = camera_file
-
-# Add button to turn off camera (clear stored photo)
-if st.session_state.camera_image is not None:
-    if st.button("🛑 Turn Off Camera"):
+with tab2:
+    if "camera_image" not in st.session_state:
         st.session_state.camera_image = None
-        st.experimental_rerun()
+
+    camera_file = st.camera_input("Click below to open your camera and take a photo")
+
+    if camera_file is not None:
+        st.session_state.camera_image = camera_file
+
+    if st.session_state.camera_image is not None:
+        if st.button("🛑 Turn Off Camera"):
+            st.session_state.camera_image = None
+            st.experimental_rerun()
 
 # Pick whichever provided
 image_file = uploaded_file if uploaded_file is not None else st.session_state.camera_image
@@ -71,7 +74,7 @@ if image_file is not None:
     st.subheader("📝 Extracted Text")
     st.text(extracted_text)
 
-    # Regex for temperature (integer or fractional)
+    # Regex for temperature (integer or fractional, like 28, 28.5, 28°C)
     temp_matches = re.findall(r'(\d+\.?\d*)\s*(?:°|°C|degree|degrees)', extracted_text, flags=re.IGNORECASE)
     if temp_matches:
         extracted_temp = int(round(float(temp_matches[0])))
@@ -98,4 +101,12 @@ if st.button("Compare with API"):
 
             if extracted_temp is not None:
                 if extracted_temp == api_temp:
-                    st.success("✅ Match! Extracted t
+                    st.success("✅ Match! Extracted temperature matches API data.")
+                else:
+                    st.error("❌ Not Match! Extracted temperature does not match API data.")
+            else:
+                st.error("❌ Not Match! No temperature value detected in image.")
+        else:
+            st.error("City not found or API error.")
+    except Exception as e:
+        st.error(f"API request failed: {e}")
