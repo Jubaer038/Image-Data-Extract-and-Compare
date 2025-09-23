@@ -16,6 +16,8 @@ A **Streamlit-based mobile-friendly web app** to extract temperature from an ima
 - Mobile-friendly layout with responsive design  
 
 ---
+## 🔹 Open in Browser / Mobile:
+- Usually runs at `http://localhost:8501` 
 
 ## 🔹 Demo Screenshot
 
@@ -38,8 +40,7 @@ pip install streamlit pillow opencv-python-headless pytesseract requests numpy
 
 ### Tesseract Installation
 
-- **Windows:** [Download Tesseract](https://github.com/tesseract-ocr/tesseract)  
-- **Linux (Ubuntu/Debian):**
+
 ```bash
 sudo apt update
 sudo apt install tesseract-ocr libtesseract-dev
@@ -87,13 +88,8 @@ tesseract --version
 5. Run the Streamlit app:
 ```bash
 streamlit run app.py
-```
+``` 
 
-6. Open in browser / mobile:
-- Usually runs at `http://localhost:8501`  
-- Mobile users can access via same network IP: `http://<PC_IP>:8501`  
-
----
 
 ## 🔹 How to Use
 
@@ -143,14 +139,3 @@ st.session_state.history           # Previous comparisons
 - Only integer temperatures extracted (no fractional like 28.5)  
 - Multiple image inputs supported; previous results reset for new input  
 - Mobile-friendly layout tested on phones and tablets  
-
----
-
-## 🔹 License
-
-MIT License © 2025  
-
----
-
-**Optional:** Add a screenshot file `screenshot.png` in the repository for GitHub preview.
-
