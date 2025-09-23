@@ -57,7 +57,7 @@ ImageDataExtractCompare/
 
 1. Clone the repository:
 ```bash
-git clone <[repository_link](https://github.com/Jubaer038/Image-Data-Extract-and-Compare.git)>
+git clone <https://github.com/Jubaer038/Image-Data-Extract-and-Compare.git>
 cd ImageDataExtractCompare
 ```
 
