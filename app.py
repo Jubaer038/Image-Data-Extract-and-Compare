@@ -30,18 +30,20 @@ st.title("📷 Image Data Extract & Compare")
 st.write("Upload an image OR take a photo, extract temperature text, and compare with OpenWeather API.")
 
 # -------------------------------
-# Step 1: Image Input (Upload OR Camera on Button Click)
+# Step 1: Image Input (Upload OR Camera)
 # -------------------------------
 st.subheader("📤 Choose Image Source")
 
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+camera_file = st.camera_input("📸 Take Photo")
 
-camera_file = None
-if st.button("📸 Take Photo"):
-    camera_file = st.camera_input("Capture Image")
-
-# Pick whichever is provided
+# pick whichever provided
 image_file = uploaded_file if uploaded_file is not None else camera_file
+
+# -------------------------------
+# Step 2: OCR Extraction (Auto-run after image selected)
+# -------------------------------
+extracted_temp = None
 
 if image_file is not None:
     image = Image.open(image_file).convert("RGB")
@@ -49,50 +51,45 @@ if image_file is not None:
 
     st.image(image, caption="Selected Image", use_column_width=True)
 
-    # -------------------------------
-    # Step 2: OCR Extraction
-    # -------------------------------
     gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
     extracted_text = pytesseract.image_to_string(gray)
 
     st.subheader("📝 Extracted Text")
     st.text(extracted_text)
 
-    # ✅ Extract only integer temperature-like values
-    extracted_temp = None
+    # Regex for temperature values (integers only)
     temp_matches = re.findall(r'(\d+)\s*(?:°|°C|degree|degrees)', extracted_text, flags=re.IGNORECASE)
-
     if temp_matches:
         extracted_temp = int(temp_matches[0])
         st.success(f"Extracted Temperature: {extracted_temp}°C")
     else:
         st.warning("⚠️ No valid temperature value detected.")
 
-    # -------------------------------
-    # Step 3: OpenWeather API
-    # -------------------------------
-    city = st.text_input("Enter city name for weather check", "Dhaka")
+# -------------------------------
+# Step 3: OpenWeather API Compare
+# -------------------------------
+city = st.text_input("Enter city name for weather check", "Dhaka")
 
-    if st.button("Compare with API"):
-        api_key = "22f9ea86b3c7d79c4a1df5b7a06da497"
-        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
+if st.button("Compare with API"):
+    api_key = "22f9ea86b3c7d79c4a1df5b7a06da497"
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
 
-        try:
-            response = requests.get(url)
-            data = response.json()
+    try:
+        response = requests.get(url)
+        data = response.json()
 
-            if data.get("main"):
-                api_temp = round(data["main"]["temp"])
-                st.info(f"🌤 Current API Temperature in {city}: {api_temp}°C")
+        if data.get("main"):
+            api_temp = round(data["main"]["temp"])
+            st.info(f"🌤 Current API Temperature in {city}: {api_temp}°C")
 
-                if extracted_temp is not None:
-                    if extracted_temp == api_temp:
-                        st.success("✅ Match! Extracted temperature matches API data.")
-                    else:
-                        st.error("❌ Not Match! Extracted temperature does not match API data.")
+            if extracted_temp is not None:
+                if extracted_temp == api_temp:
+                    st.success("✅ Match! Extracted temperature matches API data.")
                 else:
-                    st.error("❌ Not Match! No temperature value detected in image.")
+                    st.error("❌ Not Match! Extracted temperature does not match API data.")
             else:
-                st.error("City not found or API error.")
-        except Exception as e:
-            st.error(f"API request failed: {e}")
+                st.error("❌ Not Match! No temperature value detected in image.")
+        else:
+            st.error("City not found or API error.")
+    except Exception as e:
+        st.error(f"API request failed: {e}")
