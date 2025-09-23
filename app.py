@@ -6,6 +6,7 @@ import requests
 import numpy as np
 import shutil
 import os
+import re
 
 # -------------------------------
 # Configure Tesseract Path
@@ -26,7 +27,7 @@ else:
 # Streamlit Page Settings
 # -------------------------------
 st.set_page_config(page_title="Image Data Extract & Compare", layout="wide")
-st.title("Image Data Extract & Compare")
+st.title("📷 Image Data Extract & Compare")
 st.write("Upload an image, extract temperature text, and compare with OpenWeather API.")
 
 # -------------------------------
@@ -47,22 +48,17 @@ if uploaded_file is not None:
     gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)  # Convert RGB → Gray
     extracted_text = pytesseract.image_to_string(gray)
 
-    st.subheader("Extracted Text")
+    st.subheader("📝 Extracted Text")
     st.text(extracted_text)
 
-    # Detect first integer (temperature-like value)
+    # ✅ Improved numeric extraction using regex
     extracted_temp = None
-    for word in extracted_text.split():
-        try:
-            extracted_temp = int(word)
-            break
-        except:
-            continue
-
-    if extracted_temp is not None:
+    matches = re.findall(r'\d+\.?\d*', extracted_text)  # find numbers like 30, 30.5
+    if matches:
+        extracted_temp = int(round(float(matches[0])))  # take first number
         st.success(f"Extracted Temperature: {extracted_temp}°C")
     else:
-        st.warning("No temperature value detected.")
+        st.warning("⚠️ No temperature value detected.")
 
     # -------------------------------
     # Step 3: OpenWeather API
@@ -70,9 +66,7 @@ if uploaded_file is not None:
     city = st.text_input("Enter city name for weather check", "Dhaka")
 
     if st.button("Compare with API"):
-        #Hard-coded API key
-        api_key = "22f9ea86b3c7d79c4a1df5b7a06da497"
-
+        api_key = "22f9ea86b3c7d79c4a1df5b7a06da497"  # ✅ Your API key
         url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
 
         try:
@@ -83,11 +77,14 @@ if uploaded_file is not None:
                 api_temp = round(data["main"]["temp"])
                 st.info(f"🌤 Current API Temperature in {city}: {api_temp}°C")
 
+                # ✅ Compare Logic (even if no extracted temp)
                 if extracted_temp is not None:
                     if extracted_temp == api_temp:
-                        st.success("Match! Extracted temperature matches API data.")
+                        st.success("✅ Match! Extracted temperature matches API data.")
                     else:
-                        st.error("Not Match! Extracted temperature does not match API data.")
+                        st.error("❌ Not Match! Extracted temperature does not match API data.")
+                else:
+                    st.error("❌ Not Match! No numeric value detected in image.")
             else:
                 st.error("City not found or API error.")
         except Exception as e:
