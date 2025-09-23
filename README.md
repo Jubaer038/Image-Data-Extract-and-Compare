@@ -1,4 +1,4 @@
-
+# 📷 Image Data Extract & Compare
 
 A **Streamlit-based mobile-friendly web app** to extract temperature from an image or photo and compare it with the current temperature from OpenWeather API.
 
