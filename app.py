@@ -36,11 +36,23 @@ st.subheader("📤 Select Image Source")
 
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
 
-st.markdown("**OR, click below to open your camera 👇**")
+# Camera capture with session state control
+if "camera_image" not in st.session_state:
+    st.session_state.camera_image = None
+
 camera_file = st.camera_input("📸 Take Photo (click to open camera)")
 
-# pick whichever provided
-image_file = uploaded_file if uploaded_file is not None else camera_file
+if camera_file is not None:
+    st.session_state.camera_image = camera_file
+
+# Add button to turn off camera (clear stored photo)
+if st.session_state.camera_image is not None:
+    if st.button("🛑 Turn Off Camera"):
+        st.session_state.camera_image = None
+        st.experimental_rerun()
+
+# Pick whichever provided
+image_file = uploaded_file if uploaded_file is not None else st.session_state.camera_image
 
 # -------------------------------
 # Step 2: OCR Extraction
@@ -86,12 +98,4 @@ if st.button("Compare with API"):
 
             if extracted_temp is not None:
                 if extracted_temp == api_temp:
-                    st.success("✅ Match! Extracted temperature matches API data.")
-                else:
-                    st.error("❌ Not Match! Extracted temperature does not match API data.")
-            else:
-                st.error("❌ Not Match! No temperature value detected in image.")
-        else:
-            st.error("City not found or API error.")
-    except Exception as e:
-        st.error(f"API request failed: {e}")
+                    st.success("✅ Match! Extracted t
