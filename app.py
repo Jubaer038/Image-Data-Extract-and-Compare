@@ -49,15 +49,15 @@ if uploaded_file is not None:
     st.subheader("📝 Extracted Text")
     st.text(extracted_text)
 
-    # ✅ Extract only temperature-like values
+    # ✅ Extract only integer temperature-like values
     extracted_temp = None
-    temp_matches = re.findall(r'(\d+\.?\d*)\s*(?:°|°C|degree|degrees)', extracted_text, flags=re.IGNORECASE)
+    temp_matches = re.findall(r'(\d+)\s*(?:°|°C|degree|degrees)', extracted_text, flags=re.IGNORECASE)
 
     if temp_matches:
-        extracted_temp = int(round(float(temp_matches[0])))
+        extracted_temp = int(temp_matches[0])  # take first integer
         st.success(f"Extracted Temperature: {extracted_temp}°C")
     else:
-        st.warning("⚠️ No valid temperature value detected.")
+        st.warning("⚠️ No valid integer temperature value detected.")
 
     # -------------------------------
     # Step 3: OpenWeather API
