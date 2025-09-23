@@ -27,18 +27,23 @@ else:
 # -------------------------------
 st.set_page_config(page_title="Image Data Extract & Compare", layout="wide")
 st.title("📷 Image Data Extract & Compare")
-st.write("Upload an image, extract temperature text, and compare with OpenWeather API.")
+st.write("Upload an image OR take a photo, extract temperature text, and compare with OpenWeather API.")
 
 # -------------------------------
-# Step 1: File Upload
+# Step 1: Image Input (Upload or Camera)
 # -------------------------------
+st.subheader("📤 Choose Image Source")
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+camera_file = st.camera_input("Or take a photo")
 
-if uploaded_file is not None:
-    image = Image.open(uploaded_file).convert("RGB")
+# Pick whichever is provided
+image_file = uploaded_file if uploaded_file is not None else camera_file
+
+if image_file is not None:
+    image = Image.open(image_file).convert("RGB")
     img_array = np.array(image)
 
-    st.image(image, caption="Uploaded Image", use_column_width=True)
+    st.image(image, caption="Selected Image", use_column_width=True)
 
     # -------------------------------
     # Step 2: OCR Extraction
@@ -49,12 +54,12 @@ if uploaded_file is not None:
     st.subheader("📝 Extracted Text")
     st.text(extracted_text)
 
-    # ✅ Extract only temperature-like values
+    # ✅ Extract only temperature-like values (integers + °, °C, degree)
     extracted_temp = None
-    temp_matches = re.findall(r'(\d+\.?\d*)\s*(?:°|°C|degree|degrees)', extracted_text, flags=re.IGNORECASE)
+    temp_matches = re.findall(r'(\d+)\s*(?:°|°C|degree|degrees)', extracted_text, flags=re.IGNORECASE)
 
     if temp_matches:
-        extracted_temp = int(round(float(temp_matches[0])))
+        extracted_temp = int(temp_matches[0])
         st.success(f"Extracted Temperature: {extracted_temp}°C")
     else:
         st.warning("⚠️ No valid temperature value detected.")
