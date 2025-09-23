@@ -47,21 +47,15 @@ tab1, tab2 = st.tabs(["📤 Upload Image", "📸 Take Photo"])
 with tab1:
     uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
     if uploaded_file is not None:
-        # Reset previous results
         st.session_state.image_file = uploaded_file
-        st.session_state.extracted_temp = None
-        st.session_state.extracted_text = ""
 
 with tab2:
     camera_file = st.camera_input("Click below to open your camera and take a photo")
     if camera_file is not None:
-        # Reset previous results
         st.session_state.image_file = camera_file
-        st.session_state.extracted_temp = None
-        st.session_state.extracted_text = ""
 
 # -------------------------------
-# Step 2: OCR Extraction
+# Step 2: OCR Extraction (auto-update for new image)
 # -------------------------------
 if st.session_state.image_file is not None:
     image = Image.open(st.session_state.image_file).convert("RGB")
