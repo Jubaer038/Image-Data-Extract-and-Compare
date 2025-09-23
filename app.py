@@ -56,13 +56,16 @@ with tab1:
             st.session_state.current_source = "upload"
 
 with tab2:
-    camera_file = st.camera_input("Click below to open your camera and take a photo")
-    if camera_file is not None:
-        if st.session_state.current_source != "camera" or st.session_state.image_file != camera_file:
-            st.session_state.image_file = camera_file
-            st.session_state.extracted_temp = None
-            st.session_state.extracted_text = ""
-            st.session_state.current_source = "camera"
+    st.info("Click below to open your camera and take a photo 👇")
+    open_camera = st.button("📸 Open Camera")
+    if open_camera:
+        camera_file = st.camera_input("Take a photo")
+        if camera_file is not None:
+            if st.session_state.current_source != "camera" or st.session_state.image_file != camera_file:
+                st.session_state.image_file = camera_file
+                st.session_state.extracted_temp = None
+                st.session_state.extracted_text = ""
+                st.session_state.current_source = "camera"
 
 # -------------------------------
 # OCR Extraction
