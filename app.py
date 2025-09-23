@@ -30,11 +30,15 @@ st.title("📷 Image Data Extract & Compare")
 st.write("Upload an image OR take a photo, extract temperature text, and compare with OpenWeather API.")
 
 # -------------------------------
-# Step 1: Image Input (Upload or Camera)
+# Step 1: Image Input (Upload OR Camera on Button Click)
 # -------------------------------
 st.subheader("📤 Choose Image Source")
+
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
-camera_file = st.camera_input("Or take a photo")
+
+camera_file = None
+if st.button("📸 Take Photo"):
+    camera_file = st.camera_input("Capture Image")
 
 # Pick whichever is provided
 image_file = uploaded_file if uploaded_file is not None else camera_file
@@ -54,7 +58,7 @@ if image_file is not None:
     st.subheader("📝 Extracted Text")
     st.text(extracted_text)
 
-    # ✅ Extract only temperature-like values (integers + °, °C, degree)
+    # ✅ Extract only integer temperature-like values
     extracted_temp = None
     temp_matches = re.findall(r'(\d+)\s*(?:°|°C|degree|degrees)', extracted_text, flags=re.IGNORECASE)
 
