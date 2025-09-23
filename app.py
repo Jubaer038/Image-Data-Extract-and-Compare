@@ -41,21 +41,10 @@ with tab1:
     uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
 
 with tab2:
-    if "camera_image" not in st.session_state:
-        st.session_state.camera_image = None
-
     camera_file = st.camera_input("Click below to open your camera and take a photo")
 
-    if camera_file is not None:
-        st.session_state.camera_image = camera_file
-
-    if st.session_state.camera_image is not None:
-        if st.button("🛑 Turn Off Camera"):
-            st.session_state.camera_image = None
-            st.experimental_rerun()
-
 # Pick whichever provided
-image_file = uploaded_file if uploaded_file is not None else st.session_state.camera_image
+image_file = uploaded_file if uploaded_file is not None else camera_file
 
 # -------------------------------
 # Step 2: OCR Extraction
