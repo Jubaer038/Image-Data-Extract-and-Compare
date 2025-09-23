@@ -38,6 +38,8 @@ if "extracted_temp" not in st.session_state:
     st.session_state.extracted_temp = None
 if "extracted_text" not in st.session_state:
     st.session_state.extracted_text = ""
+if "current_source" not in st.session_state:
+    st.session_state.current_source = None  # "upload" or "camera"
 
 # -------------------------------
 # Step 1: Tabs for Upload vs Camera
@@ -47,18 +49,22 @@ tab1, tab2 = st.tabs(["📤 Upload Image", "📸 Take Photo"])
 with tab1:
     uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
     if uploaded_file is not None:
-        # Reset previous results
-        st.session_state.image_file = uploaded_file
-        st.session_state.extracted_temp = None
-        st.session_state.extracted_text = ""
+        # Reset previous results if new upload
+        if st.session_state.current_source != "upload" or st.session_state.image_file != uploaded_file:
+            st.session_state.image_file = uploaded_file
+            st.session_state.extracted_temp = None
+            st.session_state.extracted_text = ""
+            st.session_state.current_source = "upload"
 
 with tab2:
     camera_file = st.camera_input("Click below to open your camera and take a photo")
     if camera_file is not None:
-        # Reset previous results
-        st.session_state.image_file = camera_file
-        st.session_state.extracted_temp = None
-        st.session_state.extracted_text = ""
+        # Reset previous results if new camera photo
+        if st.session_state.current_source != "camera" or st.session_state.image_file != camera_file:
+            st.session_state.image_file = camera_file
+            st.session_state.extracted_temp = None
+            st.session_state.extracted_text = ""
+            st.session_state.current_source = "camera"
 
 # -------------------------------
 # Step 2: OCR Extraction
