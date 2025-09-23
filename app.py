@@ -30,18 +30,19 @@ st.title("📷 Image Data Extract & Compare")
 st.write("Upload an image OR take a photo, extract temperature text, and compare with OpenWeather API.")
 
 # -------------------------------
-# Step 1: Image Input (Upload OR Camera)
+# Step 1: Choose Image (Upload or Camera)
 # -------------------------------
-st.subheader("📤 Choose Image Source")
+st.subheader("📤 Select Image Source")
 
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
-camera_file = st.camera_input("📸 Take Photo")
+st.write("OR")
+camera_file = st.camera_input("📸 Take Photo (Allow camera access when prompted)")
 
 # pick whichever provided
 image_file = uploaded_file if uploaded_file is not None else camera_file
 
 # -------------------------------
-# Step 2: OCR Extraction (Auto-run after image selected)
+# Step 2: OCR Extraction
 # -------------------------------
 extracted_temp = None
 
@@ -57,16 +58,16 @@ if image_file is not None:
     st.subheader("📝 Extracted Text")
     st.text(extracted_text)
 
-    # Regex for temperature values (integers only)
-    temp_matches = re.findall(r'(\d+)\s*(?:°|°C|degree|degrees)', extracted_text, flags=re.IGNORECASE)
+    # Regex for temperature (integer or fractional)
+    temp_matches = re.findall(r'(\d+\.?\d*)\s*(?:°|°C|degree|degrees)', extracted_text, flags=re.IGNORECASE)
     if temp_matches:
-        extracted_temp = int(temp_matches[0])
+        extracted_temp = int(round(float(temp_matches[0])))
         st.success(f"Extracted Temperature: {extracted_temp}°C")
     else:
         st.warning("⚠️ No valid temperature value detected.")
 
 # -------------------------------
-# Step 3: OpenWeather API Compare
+# Step 3: API Compare
 # -------------------------------
 city = st.text_input("Enter city name for weather check", "Dhaka")
 
