@@ -35,8 +35,9 @@ st.write("Upload an image OR take a photo, extract temperature text, and compare
 st.subheader("📤 Select Image Source")
 
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
-st.write("OR")
-camera_file = st.camera_input("📸 Take Photo (Allow camera access when prompted)")
+
+st.markdown("**OR, click below to open your camera 👇**")
+camera_file = st.camera_input("📸 Take Photo (click to open camera)")
 
 # pick whichever provided
 image_file = uploaded_file if uploaded_file is not None else camera_file
