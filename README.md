@@ -18,6 +18,7 @@ A **Streamlit-based mobile-friendly web app** to extract temperature from an ima
 ---
 ## 🔹 Open in Browser / Mobile:
 - Usually runs at https://image-data-extract-and-compare-nkujiu6e3qh8xspruwms3f.streamlit.app/
+- Project Video : https://drive.google.com/file/d/1noS_FSfa2HKCsB6-cYP6b6dt7_eaHjg9/view?usp=drive_link
 ---
 ## 🔹 Requirements
 
