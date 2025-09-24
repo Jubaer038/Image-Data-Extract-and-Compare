@@ -40,6 +40,8 @@ if "extracted_text" not in st.session_state:
     st.session_state.extracted_text = ""
 if "current_source" not in st.session_state:
     st.session_state.current_source = None  # "upload" or "camera"
+if "open_camera" not in st.session_state:
+    st.session_state.open_camera = False
 
 # -------------------------------
 # Tabs: Upload / Camera
@@ -56,10 +58,13 @@ with tab1:
             st.session_state.current_source = "upload"
 
 with tab2:
-    st.info("Click below to open your camera and take a photo 👇")
-    open_camera = st.button("📸 Open Camera")
-    if open_camera:
+    if not st.session_state.open_camera:
+        if st.button("📸 Open Camera"):
+            st.session_state.open_camera = True
+    else:
+        st.info("Take a photo below 👇")
         camera_file = st.camera_input("Take a photo")
+
         if camera_file is not None:
             if st.session_state.current_source != "camera" or st.session_state.image_file != camera_file:
                 st.session_state.image_file = camera_file
