@@ -39,7 +39,7 @@ if "extracted_temp" not in st.session_state:
 if "extracted_text" not in st.session_state:
     st.session_state.extracted_text = ""
 if "current_source" not in st.session_state:
-    st.session_state.current_source = None  # "upload" or "camera"
+    st.session_state.current_source = None
 if "open_camera" not in st.session_state:
     st.session_state.open_camera = False
 
@@ -48,15 +48,18 @@ if "open_camera" not in st.session_state:
 # -------------------------------
 tab1, tab2 = st.tabs(["📤 Upload Image", "📸 Take Photo"])
 
+# --- Upload Tab ---
 with tab1:
     uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
     if uploaded_file is not None:
+        # Reset state if new image
         if st.session_state.current_source != "upload" or st.session_state.image_file != uploaded_file:
             st.session_state.image_file = uploaded_file
             st.session_state.extracted_temp = None
             st.session_state.extracted_text = ""
             st.session_state.current_source = "upload"
 
+# --- Camera Tab ---
 with tab2:
     if not st.session_state.open_camera:
         if st.button("📸 Open Camera"):
@@ -66,6 +69,7 @@ with tab2:
         camera_file = st.camera_input("Take a photo")
 
         if camera_file is not None:
+            # Reset state if new photo
             if st.session_state.current_source != "camera" or st.session_state.image_file != camera_file:
                 st.session_state.image_file = camera_file
                 st.session_state.extracted_temp = None
@@ -76,22 +80,26 @@ with tab2:
 # OCR Extraction
 # -------------------------------
 if st.session_state.image_file is not None:
-    image = Image.open(st.session_state.image_file).convert("RGB")
-    img_array = np.array(image)
-    st.image(image, caption="Selected Image", use_column_width=True)
+    try:
+        image = Image.open(st.session_state.image_file).convert("RGB")
+        img_array = np.array(image)
+        st.image(image, caption="Selected Image", use_column_width=True)
 
-    gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
-    extracted_text = pytesseract.image_to_string(gray)
-    st.session_state.extracted_text = extracted_text
+        gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
+        extracted_text = pytesseract.image_to_string(gray)
+        st.session_state.extracted_text = extracted_text
 
-    st.subheader("📝 Extracted Text")
-    st.text(st.session_state.extracted_text)
+        st.subheader("📝 Extracted Text")
+        st.text(st.session_state.extracted_text)
 
-    temp_matches = re.findall(r'(\d+)\s*(?:°|°C|degree|degrees)', st.session_state.extracted_text, flags=re.IGNORECASE)
-    if temp_matches:
-        st.session_state.extracted_temp = int(temp_matches[0])
-    else:
-        st.session_state.extracted_temp = None
+        temp_matches = re.findall(r'(\d+)\s*(?:°|°C|degree|degrees)', st.session_state.extracted_text, flags=re.IGNORECASE)
+        if temp_matches:
+            st.session_state.extracted_temp = int(temp_matches[0])
+        else:
+            st.session_state.extracted_temp = None
+
+    except Exception as e:
+        st.error(f"Image processing failed: {e}")
 
 # -------------------------------
 # API Compare + Card View
